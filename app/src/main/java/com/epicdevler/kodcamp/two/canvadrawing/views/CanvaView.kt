@@ -23,15 +23,10 @@ class CanvaView constructor(context: Context) : View(context) {
     private var currentX: Float = 0f
     private var currentY: Float = 0f
 
-
     private val STROKE_WIDTH = 12f
     private val bgColor = ResourcesCompat.getColor(resources, R.color.white, null)
     private val drawColor = ResourcesCompat.getColor(resources, R.color.black, null)
-
     private val path = Path()
-    private val drawing = Path()
-    private val currentPath = Path()
-
     private val paint = Paint().apply {
         color = drawColor
         isAntiAlias = true
@@ -45,6 +40,8 @@ class CanvaView constructor(context: Context) : View(context) {
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         if (::extraBitmap.isInitialized) extraBitmap.recycle()
+        extraBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        extraCanvas = Canvas(extraBitmap)
         extraCanvas.drawColor(bgColor)
 
         val inset_outter = 50
@@ -55,10 +52,7 @@ class CanvaView constructor(context: Context) : View(context) {
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        canvas?.drawPath(drawing, paint)
-        canvas?.drawPath(currentPath, paint)
-
-//        ADD INSETS TO SCREENS
+        canvas?.drawBitmap(extraBitmap, 0f, 0f, null /*paint*/)
         canvas?.drawRect(frame_inner, paint)
         canvas?.drawRect(frame_outter, paint)
     }
@@ -93,8 +87,7 @@ class CanvaView constructor(context: Context) : View(context) {
     }
 
     private fun touchUp() {
-        drawing.addPath(currentPath)
-        currentPath.reset()
+        path.reset()
     }
 
     private fun touchStart() {
